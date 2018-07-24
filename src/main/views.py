@@ -1,6 +1,6 @@
 from django.utils import timezone
 from django.views.generic import TemplateView, DetailView, ListView, CreateView
-from .models import Society, Club, Senate, Festival, Activity, Contact
+from .models import Society, Club, Senate, Festival, Activity, Contact, Secretary
 from .forms import ContactForm
 from .mixins import NavigationMixin
 from photologue.models import Gallery
@@ -84,4 +84,14 @@ class ContactListView(ListView):
     def get_context_data(self, **kwargs):
         context = super(ContactListView, self).get_context_data(**kwargs)
         context['range'] = range(context["paginator"].num_pages)
+        return context
+    
+class SecretaryView(ListView):
+    template_name = 'main/secretary.html'
+    model = Secretary
+    paginate_by = 2
+    
+    def get_context_data(self, **kwargs):
+        context = super(SecretaryView, self).get_context_data(**kwargs)
+        context['range'] = range(context['paginator'].num_pages)
         return context
