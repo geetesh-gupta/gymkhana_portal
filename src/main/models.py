@@ -268,7 +268,7 @@ class Contact(models.Model):
         return reverse('main:contact')
     
     
-class Secretary(models.Model):
+class Office(models.Model):
     # Validators
     contact = RegexValidator(r'^[0-9]{10}$', message='Not a valid number!')
     # Database_model
