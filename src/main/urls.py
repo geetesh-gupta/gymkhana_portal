@@ -10,4 +10,5 @@ urlpatterns = [
     url(r'^society/(?P<slug>[\w-]+)/$', SocietyView.as_view(), name='soc-detail'),
     url(r'^senate/(?P<slug>[\w-]+)/$', SenateView.as_view(), name='senate-detail'),
     url(r'^club/(?P<slug>[\w-]+)/$', ClubView.as_view(), name='club-detail'),
+    url(r'^office/$', OfficeView.as_view(), name='office-detail'),
 ]
