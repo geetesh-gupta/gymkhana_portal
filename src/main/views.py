@@ -88,7 +88,7 @@ class ContactListView(ListView):
     
 class OfficeView(ListView):
     template_name = 'main/secretary.html'
-    model = Secretary
+    model = Office
     paginate_by = 2
     
     def get_context_data(self, **kwargs):
