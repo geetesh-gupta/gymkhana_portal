@@ -266,3 +266,17 @@ class Contact(models.Model):
 
     def get_absolute_url(self):
         return reverse('main:contact')
+    
+    
+class Secretary(models.Model):
+    # Validators
+    contact = RegexValidator(r'^[0-9]{10}$', message='Not a valid number!')
+    # Database_model
+    name = models.CharField(max_length=64)
+    email = models.EmailField()
+    phone = models.CharField(max_length=10, validators=[contact])
+    society = models.CharField(max_length=50)
+    
+    def __str__(self):
+        return self.name + ' with email ' + self.email + ' and mobile no. ' + self.mobile + ' is in ' self.society
+    
