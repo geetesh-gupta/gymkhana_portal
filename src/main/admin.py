@@ -33,8 +33,8 @@ class ActivityAdmin(admin.ModelAdmin):
 main_models = [
     SocialLink,
     Festival,
-    Contact,
-    Secretary
+    Secretary,
+    Contact
 ]
 
 admin.site.register(Society, SocietyAdmin)
