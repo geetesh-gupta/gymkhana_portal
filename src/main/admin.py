@@ -33,7 +33,7 @@ class ActivityAdmin(admin.ModelAdmin):
 main_models = [
     SocialLink,
     Festival,
-    Secretary,
+    Office,
     Contact
 ]
 
