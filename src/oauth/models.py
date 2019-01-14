@@ -1,6 +1,5 @@
 from django.db import models
 from django.db.models import Q
-from django.db.models.signals import pre_save
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -9,6 +8,7 @@ from django.utils.encoding import force_bytes
 from django.utils.encoding import force_text
 from .tokens import account_activation_token
 from versatileimagefield.fields import VersatileImageField
+from django.db.models.signals import pre_save
 
 
 class KonnektQueryset(models.query.QuerySet):
@@ -59,14 +59,6 @@ class UserProfileManager(models.Manager):
         return user
 
 
-def set_new_user_inactive(sender, instance, **kwargs):
-    if instance._state.adding is True and instance.is_superuser is False:
-        instance.is_active = False
-
-
-pre_save.connect(set_new_user_inactive, sender=User)
-
-
 class UserProfile(models.Model):
     # Validators
     valid_year = RegexValidator(r'^[0-9]{4}$', message='Not a valid year!')
@@ -98,6 +90,7 @@ class UserProfile(models.Model):
         ('CH', 'Chemistry'),
         ('MA', 'Mathematics'),
         ('PHY', 'Physics'),
+        ('MME', 'Metallurgical and Materials Engineering'),
         ('HSS', 'Humanities and Social Sciences'),
         ('BBE', 'Biosciences and Bioengineering'),
         ('BISS', 'BISS'),
@@ -105,7 +98,7 @@ class UserProfile(models.Model):
     )
     # Database Model
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    email_confirmed = models.BooleanField(default=False)
+    email_confirmed = models.BooleanField(default=True)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, default='M')
     roll = models.CharField(max_length=15, unique=True)
     dob = models.DateField()
@@ -119,6 +112,9 @@ class UserProfile(models.Model):
     skills = models.TextField(help_text="Enter your skills, separated by comma.", max_length=1024, blank=True,
                               null=True, default=None)
     about = models.TextField(max_length=160, verbose_name='about you', blank=True, null=True)
+
+    class Meta:
+        ordering = ["roll"]
 
     def get_absolute_url(self):
         return reverse('oauth:detail', kwargs={'roll': self.roll})
@@ -193,3 +189,13 @@ class SocialLink(models.Model):
             if value == self.social_media:
                 return key
         return ''
+
+
+def topic_pre_save_receiver(sender, instance, *args, **kwargs):
+    if instance._state.adding is True:
+        name = instance.first_name.split(' ')
+        instance.first_name = name[0].title()
+        instance.last_name = ' '.join([x.title() for x in name[1:len(name)]])
+
+
+pre_save.connect(topic_pre_save_receiver, sender=User)

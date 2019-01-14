@@ -1,14 +1,21 @@
 from django.utils import timezone
 from django.views.generic import TemplateView, DetailView, ListView, CreateView
-from .models import Society, Club, Senate, Festival, Activity, Contact, Office
+from .models import Society, Club, Senate, Festival, Activity, Contact
+from oauth.models import UserProfile
 from .forms import ContactForm
 from .mixins import NavigationMixin
 from photologue.models import Gallery
 from events.models import Event
 from news.models import News
+from .utils import MaintenanceMixin
+from decouple import config
 
 
-class HomeView(NavigationMixin, TemplateView):
+class MaintenanceAndNavigationMixin(MaintenanceMixin, NavigationMixin):
+    pass
+
+
+class HomeView(MaintenanceAndNavigationMixin, TemplateView):
     template_name = 'main/index.html'
 
     def get_context_data(self, **kwargs):
@@ -26,7 +33,7 @@ class HomeView(NavigationMixin, TemplateView):
         return context
 
 
-class SocietyView(NavigationMixin, DetailView):
+class SocietyView(MaintenanceAndNavigationMixin, DetailView):
     template_name = 'main/society.html'
     model = Society
 
@@ -45,7 +52,7 @@ class SocietyView(NavigationMixin, DetailView):
         return context
 
 
-class SenateView(NavigationMixin, DetailView):
+class SenateView(MaintenanceAndNavigationMixin, DetailView):
     template_name = 'main/senate.html'
     model = Senate
 
@@ -54,7 +61,7 @@ class SenateView(NavigationMixin, DetailView):
         return context
 
 
-class ClubView(NavigationMixin, DetailView):
+class ClubView(MaintenanceAndNavigationMixin, DetailView):
     template_name = 'main/club.html'
     model = Club
 
@@ -71,12 +78,12 @@ class ClubView(NavigationMixin, DetailView):
         return context
 
 
-class ContactView(NavigationMixin, CreateView):
+class ContactView(MaintenanceAndNavigationMixin, CreateView):
     template_name = 'main/contact.html'
     form_class = ContactForm
 
 
-class ContactListView(ListView):
+class ContactListView(MaintenanceAndNavigationMixin, ListView):
     template_name = 'main/contact_list.html'
     model = Contact
     paginate_by = 2
@@ -85,13 +92,22 @@ class ContactListView(ListView):
         context = super(ContactListView, self).get_context_data(**kwargs)
         context['range'] = range(context["paginator"].num_pages)
         return context
-    
-class OfficeView(ListView):
-    template_name = 'main/secretary.html'
-    model = Office
-    paginate_by = 2
-    
+
+
+class OfficeView(MaintenanceAndNavigationMixin, TemplateView):
+    template_name = 'main/office.html'
+
     def get_context_data(self, **kwargs):
-        context = super(SecretaryView, self).get_context_data(**kwargs)
-        context['range'] = range(context['paginator'].num_pages)
+        context = super(OfficeView, self).get_context_data(**kwargs)
+        secretary_roll_no = config('GENERAL_SECRETARY_ROLL', cast=str, default='')
+        current_year = str(timezone.now().year)
+        context.update({
+            'general_secretary': UserProfile.objects.filter(
+                roll=secretary_roll_no).first() if UserProfile.objects.filter(
+                roll=secretary_roll_no).exists() else None,
+            'societies': Society.objects.filter(year=current_year),
+            'senate_secretary': Senate.objects.filter(year=current_year).first().senatemembership_set.filter(
+                role='SECY').first().userprofile if Senate.objects.filter(
+                year=current_year).exists() else None
+        })
         return context

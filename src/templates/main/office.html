@@ -1,125 +1,35 @@
 {% extends 'main/base.html' %}
-{% load staticfiles humanize%}
-{% block title %} Student's Gymkhana Office {% endblock %}
+{% load staticfiles %}
 {% block customstyles %}
-  <style>
-    img{
-      vertical-align:inherit;
-      border-style: none;
-      height: 200px;
-      width: 200px;
-    }
-    @media screen and (min-width: 992px) {
-      img{
-        float: left;    
-      }
-    }
-    .society{
-      color: black;
-    }
-  </style>
+    <link rel="stylesheet" href="{% static 'css/contact_card.css' %}"/>
 {% endblock %}
-
-{% block header %}
-<!--Navbar-->
-  <header>
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top scrolling-navbar">
-      <div class="container">
-        <!-- Collapse button -->
-        <button class="navbar-toggler navbar-toggler-right collapsed" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <!-- /.Collapse button -->
-        <a class="navbar-brand" href="{% url 'main:index' %}">
-          <img src="img/favicon.png" alt="logo" style="height: 2.2rem;width: auto;">
-        </a>
-        <!-- Collapsible content -->
-        <div class="collapse navbar-collapse" id="basicExampleNav">
-          <!-- Links -->
-          <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-              <a class="nav-link waves-effect waves-light" href="{% url 'main:index' %}">Home</a>
-            </li>
-            <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle waves-effect waves-light" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Societies
-            </a>
-              <div class="dropdown-menu dropdown-dark" aria-labelledby="navbarDropdownMenuLink">
-                {% for society in society_link_list %}
-                <a class="dropdown-item waves-effect waves-light " href="{{ society.get_absolute_url }}">{{ society.name }}</a> {% endfor %}
-                <a class="dropdown-item waves-effect waves-light " href="{{ senate.get_absolute_url }}">{{ senate.name }}</a>
-              </div>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link waves-effect waves-light" href="{% url 'forum:index' %}">Forum</a>
-            </li>
-          </ul>
-          <!-- /.Links -->
-          <!-- Social Icon  -->
-          <ul class="navbar-nav nav-flex-icons">
-            <li class="nav-item">
-              <a class="nav-link waves-effect waves-light"><i class="fa fa-facebook"></i></a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link waves-effect waves-light"><i class="fa fa-instagram"></i></a>
-            </li>
-          </ul>
-          <!-- /.Social Icon  -->
-        </div>
-        <!-- /.Collapsible content -->
-      </div>
-    </nav>
-    <!--/.Navbar-->
-    <!--Mask-->
-    <div id="intro" class="view">
-      <div class="mask rgba-black-strong">
-        <div class="container-fluid d-flex align-items-center justify-content-center h-100">
-          <div class="row d-flex justify-content-center text-center">
-            <div class="col-md-10">
-              <!-- Heading -->
-              <h3 class="display-4 font-weight-bold white-text pt-5 mb-2">Student's Gymkhana Office</h3>
-              <!-- Divider -->
-              <hr class="hr-light">
-              <!-- Description -->
-              <h4 class="white-text my-4">Gymkhana comprises of one Joint Secretary along with one Secretary for each society.</h4>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!--/.Mask-->
-  </header>
-{% endblock %}
-
 {% block main %}
-    <div class="container">
-      {% for office in office.all %}
-      <div class="row">
-        <div class="col-1">
+    <div class="container pt-5 section team-section">
+        <div class="row flex-center">
+            <div class="col-sm-10">
+                <!--Card Primary-->
+                <div class="card primary-color text-center z-depth-2 mt-2 mb-2">
+                    <div class="card-block">
+                        <h3 class="h3-responsive white-text mb-0">Office Bearers</h3>
+                    </div>
+                </div>
+                <!--/.Card Primary-->
+            </div>
+            {% if general_secretary %}
+                <div class="col-lg-4 col-md-6 pt-md-2 mb-r">
+                    {% include 'main/mixins/user_card_mixin.html' with userprofile=general_secretary designation='General Secretary' %}
+                </div>
+            {% endif %}
+            {% for society in societies %}
+                <div class="col-lg-4 col-md-6 pt-md-2 mb-r">
+                    {% include 'main/mixins/user_card_mixin.html' with userprofile=society.secretary designation=society.name|add:' Secretary' %}
+                </div>
+            {% endfor %}
+            {% if senate_secretary %}
+                <div class="col-lg-4 col-md-6 pt-md-2 mb-r">
+                    {% include 'main/mixins/user_card_mixin.html' with userprofile=senate_secretary designation='Student Elected Representative Society Secretary' %}
+                </div>
+            {% endif %}
         </div>
-        <!-- Card -->
-        <div class="card card-cascade col-10">
-          <!-- Card content -->
-          <div class="card-body text-center ">
-            <!-- Image -->
-            <img src="img/3.jpg" class="img-fluid z-depth-1 rounded-circle" alt="Responsive image">
-            <!-- Title -->
-            <br>
-            <h3 class="card-title d-inline-block mx-auto"><strong>Info</strong></h3>
-            <!-- Subtitle -->
-            <h5 class="pb-2 society"><strong>{{ office.society }}</strong></h5>
-            <hr class="deep-purple accent-2 mb-4 mt-0 d-inline-block mx-auto" style="width: 60px;">
-            <p>
-              <i class="fa fa-envelope mr-3"></i>{{ office.email }}</p>
-            <p>
-              <i class="fa fa-whatsapp mr-3"></i>{{ office.mobile }}</p>
-          </div>
-        </div>
-        <!--/. Card -->
-      </div>
-
-      <hr class="my-5">
-      {% endfor %}
     </div>
-  <!--Main container-->
 {% endblock %}
